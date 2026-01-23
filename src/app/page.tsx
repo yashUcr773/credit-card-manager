@@ -1,65 +1,178 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import { CreditCard } from '@/types';
+import { useCards } from '@/context/CardContext';
+import { DashboardStats } from '@/components/dashboard/DashboardStats';
+import { CardList } from '@/components/cards/CardList';
+import { AddEditCardDialog } from '@/components/cards/AddEditCardDialog';
+import { EMIManager } from '@/components/emi/EMIManager';
+import { ReminderSettings } from '@/components/reminders/ReminderSettings';
+import { SettingsPanel } from '@/components/settings/SettingsPanel';
+import { Button } from '@/components/ui/button';
+import {
+  CreditCard as CardIcon,
+  LayoutDashboard,
+  IndianRupee,
+  Bell,
+  Settings,
+  Shield,
+  Menu,
+  X,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function Home() {
+  const { isLoading } = useCards();
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [cardToEdit, setCardToEdit] = useState<CreditCard | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleEditCard = (card: CreditCard) => {
+    setCardToEdit(card);
+    setIsAddDialogOpen(true);
+  };
+
+  const handleDialogClose = (open: boolean) => {
+    setIsAddDialogOpen(open);
+    if (!open) {
+      setCardToEdit(null);
+    }
+  };
+
+  const tabs = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'cards', label: 'Cards', icon: CardIcon },
+    { id: 'emis', label: 'EMIs', icon: IndianRupee },
+    { id: 'reminders', label: 'Reminders', icon: Bell },
+    { id: 'settings', label: 'Settings', icon: Settings },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
+          <p className="mt-4 text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
+        <div className="container flex h-16 items-center justify-between px-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <CardIcon className="h-5 w-5" />
+            </div>
+            <div>
+              <h1 className="text-lg font-semibold">Credit Card Manager</h1>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Shield className="h-3 w-3" />
+                <span>Privacy First</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile menu button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex">
+            <div className="flex items-center rounded-lg border bg-muted p-1">
+              {tabs.map((tab) => (
+                <Button
+                  key={tab.id}
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    'gap-2',
+                    activeTab === tab.id && 'bg-background shadow-sm'
+                  )}
+                  onClick={() => setActiveTab(tab.id)}
+                >
+                  <tab.icon className="h-4 w-4" />
+                  {tab.label}
+                </Button>
+              ))}
+            </div>
+          </nav>
+        </div>
+
+        {/* Mobile Navigation */}
+        {mobileMenuOpen && (
+          <nav className="border-t bg-background p-4 md:hidden">
+            <div className="grid grid-cols-2 gap-2">
+              {tabs.map((tab) => (
+                <Button
+                  key={tab.id}
+                  variant={activeTab === tab.id ? 'default' : 'outline'}
+                  className="justify-start gap-2"
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <tab.icon className="h-4 w-4" />
+                  {tab.label}
+                </Button>
+              ))}
+            </div>
+          </nav>
+        )}
+      </header>
+
+      {/* Main Content */}
+      <main className="container px-4 py-6">
+        {activeTab === 'dashboard' && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold">Dashboard</h2>
+              <p className="text-muted-foreground">
+                Overview of all your credit cards and upcoming payments
+              </p>
+            </div>
+            <DashboardStats />
+          </div>
+        )}
+
+        {activeTab === 'cards' && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold">My Cards</h2>
+              <p className="text-muted-foreground">
+                Manage your credit cards
+              </p>
+            </div>
+            <CardList
+              onAddCard={() => setIsAddDialogOpen(true)}
+              onEditCard={handleEditCard}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+          </div>
+        )}
+
+        {activeTab === 'emis' && <EMIManager />}
+        {activeTab === 'reminders' && <ReminderSettings />}
+        {activeTab === 'settings' && <SettingsPanel />}
       </main>
+
+      {/* Add/Edit Card Dialog */}
+      <AddEditCardDialog
+        open={isAddDialogOpen}
+        onOpenChange={handleDialogClose}
+        cardToEdit={cardToEdit}
+      />
     </div>
   );
 }
