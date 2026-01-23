@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { CreditCard } from '@/types';
 import { useCards } from '@/context/CardContext';
+import { useAuth } from '@/context/AuthContext';
 import { DashboardStats } from '@/components/dashboard/DashboardStats';
 import { CardList } from '@/components/cards/CardList';
 import { AddEditCardDialog } from '@/components/cards/AddEditCardDialog';
@@ -11,6 +12,15 @@ import { ReminderSettings } from '@/components/reminders/ReminderSettings';
 import { SettingsPanel } from '@/components/settings/SettingsPanel';
 import { Button } from '@/components/ui/button';
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
   CreditCard as CardIcon,
   LayoutDashboard,
   IndianRupee,
@@ -18,11 +28,15 @@ import {
   Settings,
   Shield,
   Sparkles,
+  LogOut,
+  User,
+  ChevronDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function Home() {
+export default function DashboardPage() {
   const { isLoading } = useCards();
+  const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [cardToEdit, setCardToEdit] = useState<CreditCard | null>(null);
@@ -46,6 +60,15 @@ export default function Home() {
     { id: 'reminders', label: 'Reminders', icon: Bell },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
+
+  const getUserInitials = () => {
+    if (!user?.name) return 'U';
+    const names = user.name.split(' ');
+    if (names.length >= 2) {
+      return `${names[0][0]}${names[1][0]}`.toUpperCase();
+    }
+    return names[0].slice(0, 2).toUpperCase();
+  };
 
   if (isLoading) {
     return (
@@ -94,7 +117,7 @@ export default function Home() {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex">
+          <nav className="hidden md:flex items-center gap-4">
             <div className="flex items-center gap-1 rounded-2xl bg-muted/50 p-1.5 backdrop-blur-sm">
               {tabs.map((tab) => (
                 <Button
@@ -114,10 +137,71 @@ export default function Home() {
                 </Button>
               ))}
             </div>
-          </nav>
-        </div>
 
-        {/* Mobile Navigation - Fixed Bottom */}
+            {/* User Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="gap-2 rounded-xl">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                      {getUserInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden lg:inline max-w-[100px] truncate">
+                    {user?.name || 'User'}
+                  </span>
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium">{user?.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setActiveTab('settings')}>
+                  <User className="mr-2 h-4 w-4" />
+                  Profile Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logout} className="text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </nav>
+
+          {/* Mobile User Menu */}
+          <div className="md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-xl">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                      {getUserInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium">{user?.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logout} className="text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
       </header>
 
       {/* Main Content */}
@@ -126,7 +210,9 @@ export default function Home() {
           <div className="space-y-8">
             <div className="flex items-start justify-between">
               <div>
-                <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+                <h2 className="text-3xl font-bold tracking-tight">
+                  Welcome back, {user?.name?.split(' ')[0] || 'User'}
+                </h2>
                 <p className="mt-1 text-muted-foreground">
                   Overview of all your credit cards and upcoming payments
                 </p>
