@@ -17,8 +17,7 @@ import {
   Bell,
   Settings,
   Shield,
-  Menu,
-  X,
+  Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -27,7 +26,6 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [cardToEdit, setCardToEdit] = useState<CreditCard | null>(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleEditCard = (card: CreditCard) => {
     setCardToEdit(card);
@@ -51,108 +49,103 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background to-primary/5">
         <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
-          <p className="mt-4 text-muted-foreground">Loading...</p>
+          <div className="relative mx-auto h-12 w-12">
+            <div className="absolute inset-0 animate-ping rounded-full bg-primary/20" />
+            <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <CardIcon className="h-6 w-6 text-primary animate-pulse" />
+            </div>
+          </div>
+          <p className="mt-4 text-muted-foreground font-medium">Loading your cards...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      {/* Decorative background elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute top-1/2 -left-40 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
+        <div className="absolute -bottom-40 right-1/3 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
+      </div>
+
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
-        <div className="container flex h-16 items-center justify-between px-4">
+      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+        <div className="container flex h-16 items-center justify-between px-4 lg:px-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <CardIcon className="h-5 w-5" />
+            <div className="relative">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25">
+                <CardIcon className="h-5 w-5" />
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background bg-green-500" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold">Credit Card Manager</h1>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <h1 className="text-lg font-bold tracking-tight">Credit Card Manager</h1>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Shield className="h-3 w-3" />
                 <span>Privacy First</span>
+                <span className="text-primary">•</span>
+                <span>100% Local</span>
               </div>
             </div>
           </div>
 
-          {/* Mobile menu button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
-
           {/* Desktop Navigation */}
           <nav className="hidden md:flex">
-            <div className="flex items-center rounded-lg border bg-muted p-1">
+            <div className="flex items-center gap-1 rounded-2xl bg-muted/50 p-1.5 backdrop-blur-sm">
               {tabs.map((tab) => (
                 <Button
                   key={tab.id}
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    'gap-2',
-                    activeTab === tab.id && 'bg-background shadow-sm'
+                    'gap-2 rounded-xl px-4 transition-all duration-200',
+                    activeTab === tab.id 
+                      ? 'bg-background text-foreground shadow-md' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
                   )}
                   onClick={() => setActiveTab(tab.id)}
                 >
                   <tab.icon className="h-4 w-4" />
-                  {tab.label}
+                  <span className="hidden lg:inline">{tab.label}</span>
                 </Button>
               ))}
             </div>
           </nav>
         </div>
 
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <nav className="border-t bg-background p-4 md:hidden">
-            <div className="grid grid-cols-2 gap-2">
-              {tabs.map((tab) => (
-                <Button
-                  key={tab.id}
-                  variant={activeTab === tab.id ? 'default' : 'outline'}
-                  className="justify-start gap-2"
-                  onClick={() => {
-                    setActiveTab(tab.id);
-                    setMobileMenuOpen(false);
-                  }}
-                >
-                  <tab.icon className="h-4 w-4" />
-                  {tab.label}
-                </Button>
-              ))}
-            </div>
-          </nav>
-        )}
+        {/* Mobile Navigation - Fixed Bottom */}
       </header>
 
       {/* Main Content */}
-      <main className="container px-4 py-6">
+      <main className="container relative px-4 py-8 lg:px-8">
         {activeTab === 'dashboard' && (
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold">Dashboard</h2>
-              <p className="text-muted-foreground">
-                Overview of all your credit cards and upcoming payments
-              </p>
+          <div className="space-y-8">
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+                <p className="mt-1 text-muted-foreground">
+                  Overview of all your credit cards and upcoming payments
+                </p>
+              </div>
+              <div className="hidden sm:flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-sm text-primary">
+                <Sparkles className="h-4 w-4" />
+                <span>All data stored locally</span>
+              </div>
             </div>
             <DashboardStats />
           </div>
         )}
 
         {activeTab === 'cards' && (
-          <div className="space-y-6">
+          <div className="space-y-8">
             <div>
-              <h2 className="text-2xl font-bold">My Cards</h2>
-              <p className="text-muted-foreground">
-                Manage your credit cards
+              <h2 className="text-3xl font-bold tracking-tight">My Cards</h2>
+              <p className="mt-1 text-muted-foreground">
+                Manage your credit cards securely
               </p>
             </div>
             <CardList
@@ -166,6 +159,33 @@ export default function Home() {
         {activeTab === 'reminders' && <ReminderSettings />}
         {activeTab === 'settings' && <SettingsPanel />}
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/50 bg-background/80 backdrop-blur-xl md:hidden">
+        <div className="flex items-center justify-around p-2">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              className={cn(
+                'flex flex-col items-center gap-1 rounded-xl px-4 py-2 transition-all duration-200',
+                activeTab === tab.id
+                  ? 'text-primary'
+                  : 'text-muted-foreground'
+              )}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              <tab.icon className={cn(
+                'h-5 w-5 transition-transform duration-200',
+                activeTab === tab.id && 'scale-110'
+              )} />
+              <span className="text-[10px] font-medium">{tab.label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      {/* Bottom padding for mobile nav */}
+      <div className="h-20 md:hidden" />
 
       {/* Add/Edit Card Dialog */}
       <AddEditCardDialog

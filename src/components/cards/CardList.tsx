@@ -6,7 +6,7 @@ import { useCards } from '@/context/CardContext';
 import { CreditCardDisplay } from './CreditCardDisplay';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, CreditCard as CardIcon, LayoutGrid, List } from 'lucide-react';
+import { Plus, Search, CreditCard as CardIcon, LayoutGrid, List, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   AlertDialog,
@@ -47,45 +47,54 @@ export function CardList({ onAddCard, onEditCard }: CardListProps) {
 
   if (cards.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16">
-        <Empty>
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <CardIcon className="h-6 w-6" />
-            </EmptyMedia>
-            <EmptyTitle>No cards added yet</EmptyTitle>
-            <EmptyDescription>Add your first credit card to start tracking your finances</EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-        <Button onClick={onAddCard} className="mt-6">
-          <Plus className="mr-2 h-4 w-4" />
+      <div className="flex flex-col items-center justify-center py-20">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="h-32 w-32 rounded-full bg-primary/10 animate-pulse" />
+          </div>
+          <div className="relative flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/80 shadow-xl shadow-primary/25">
+            <CardIcon className="h-12 w-12 text-primary-foreground" />
+          </div>
+        </div>
+        <div className="mt-8 text-center max-w-md">
+          <h3 className="text-2xl font-bold">No cards added yet</h3>
+          <p className="mt-2 text-muted-foreground">
+            Add your first credit card to start tracking your finances securely and privately.
+          </p>
+        </div>
+        <Button onClick={onAddCard} size="lg" className="mt-8 gap-2 rounded-xl shadow-lg shadow-primary/25">
+          <Plus className="h-5 w-5" />
           Add Your First Card
         </Button>
+        <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+          <Sparkles className="h-4 w-4 text-primary" />
+          All data stored locally on your device
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search cards..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-11 h-11 rounded-xl border-border/50 bg-muted/50 focus:bg-background transition-colors"
           />
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center rounded-lg border bg-muted p-1">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center rounded-xl bg-muted/50 p-1">
             <Button
               variant="ghost"
               size="sm"
               className={cn(
-                'h-8 w-8 p-0',
-                viewMode === 'grid' && 'bg-background shadow-sm'
+                'h-9 w-9 p-0 rounded-lg transition-all duration-200',
+                viewMode === 'grid' && 'bg-background shadow-md'
               )}
               onClick={() => setViewMode('grid')}
             >
@@ -95,16 +104,16 @@ export function CardList({ onAddCard, onEditCard }: CardListProps) {
               variant="ghost"
               size="sm"
               className={cn(
-                'h-8 w-8 p-0',
-                viewMode === 'list' && 'bg-background shadow-sm'
+                'h-9 w-9 p-0 rounded-lg transition-all duration-200',
+                viewMode === 'list' && 'bg-background shadow-md'
               )}
               onClick={() => setViewMode('list')}
             >
               <List className="h-4 w-4" />
             </Button>
           </div>
-          <Button onClick={onAddCard}>
-            <Plus className="mr-2 h-4 w-4" />
+          <Button onClick={onAddCard} className="gap-2 rounded-xl shadow-lg shadow-primary/20">
+            <Plus className="h-4 w-4" />
             Add Card
           </Button>
         </div>
@@ -112,15 +121,19 @@ export function CardList({ onAddCard, onEditCard }: CardListProps) {
 
       {/* Cards Grid/List */}
       {filteredCards.length === 0 ? (
-        <div className="py-12 text-center text-muted-foreground">
-          No cards match your search
+        <div className="py-16 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
+            <Search className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <p className="mt-4 text-lg font-medium">No cards found</p>
+          <p className="mt-1 text-muted-foreground">Try adjusting your search query</p>
         </div>
       ) : (
         <div
           className={cn(
             viewMode === 'grid'
-              ? 'grid gap-6 sm:grid-cols-2 lg:grid-cols-3'
-              : 'space-y-3'
+              ? 'grid gap-6 sm:grid-cols-2 xl:grid-cols-3'
+              : 'space-y-4'
           )}
         >
           {filteredCards.map((card) => (
@@ -137,21 +150,21 @@ export function CardList({ onAddCard, onEditCard }: CardListProps) {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!cardToDelete} onOpenChange={() => setCardToDelete(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Card</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-xl">Delete Card</AlertDialogTitle>
+            <AlertDialogDescription className="text-base">
               Are you sure you want to delete &quot;{cardToDelete?.nickname}&quot;? This action
               cannot be undone and will also remove all associated reminders and EMIs.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="gap-3">
+            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
             >
-              Delete
+              Delete Card
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

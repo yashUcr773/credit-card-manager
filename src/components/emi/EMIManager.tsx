@@ -159,47 +159,72 @@ export function EMIManager({ selectedCardId }: EMIManagerProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold">EMI Tracker</h2>
-          <p className="text-sm text-muted-foreground">
+          <h2 className="text-3xl font-bold tracking-tight">EMI Tracker</h2>
+          <p className="mt-1 text-muted-foreground">
             Track and manage your active EMIs across all cards
           </p>
         </div>
-        <Button onClick={() => setIsDialogOpen(true)} disabled={cards.length === 0}>
-          <Plus className="mr-2 h-4 w-4" />
+        <Button 
+          onClick={() => setIsDialogOpen(true)} 
+          disabled={cards.length === 0}
+          className="gap-2 rounded-xl shadow-lg shadow-primary/20"
+        >
+          <Plus className="h-4 w-4" />
           Add EMI
         </Button>
       </div>
 
       {/* Summary */}
       {allEmis.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold">
-                {formatCurrency(allEmis.reduce((sum, e) => sum + e.emiAmount, 0))}
+        <div className="grid gap-6 sm:grid-cols-3">
+          <Card className="border-0 bg-card shadow-lg shadow-black/5 overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Monthly Total</p>
+                  <div className="text-3xl font-bold">
+                    {formatCurrency(allEmis.reduce((sum, e) => sum + e.emiAmount, 0))}
+                  </div>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg">
+                  <IndianRupee className="h-6 w-6 text-white" />
+                </div>
               </div>
-              <p className="text-sm text-muted-foreground">Monthly EMI Total</p>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold">{allEmis.length}</div>
-              <p className="text-sm text-muted-foreground">Active EMIs</p>
+          <Card className="border-0 bg-card shadow-lg shadow-black/5 overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Active EMIs</p>
+                  <div className="text-3xl font-bold">{allEmis.length}</div>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg">
+                  <CardIcon className="h-6 w-6 text-white" />
+                </div>
+              </div>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold">
-                {formatCurrency(
-                  allEmis.reduce(
-                    (sum, e) => sum + e.emiAmount * (e.totalInstallments - e.paidInstallments),
-                    0
-                  )
-                )}
+          <Card className="border-0 bg-card shadow-lg shadow-black/5 overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Total Remaining</p>
+                  <div className="text-3xl font-bold">
+                    {formatCurrency(
+                      allEmis.reduce(
+                        (sum, e) => sum + e.emiAmount * (e.totalInstallments - e.paidInstallments),
+                        0
+                      )
+                        )}
+                  </div>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg">
+                  <Calendar className="h-6 w-6 text-white" />
+                </div>
               </div>
-              <p className="text-sm text-muted-foreground">Total Remaining</p>
             </CardContent>
           </Card>
         </div>
@@ -207,19 +232,24 @@ export function EMIManager({ selectedCardId }: EMIManagerProps) {
 
       {/* EMI List */}
       {allEmis.length === 0 ? (
-        <Empty>
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <IndianRupee className="h-6 w-6" />
-            </EmptyMedia>
-            <EmptyTitle>No active EMIs</EmptyTitle>
-            <EmptyDescription>
+        <div className="flex flex-col items-center justify-center py-16">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="h-24 w-24 rounded-full bg-violet-500/10 animate-pulse" />
+            </div>
+            <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-xl shadow-violet-500/25">
+              <IndianRupee className="h-8 w-8 text-white" />
+            </div>
+          </div>
+          <div className="mt-6 text-center max-w-md">
+            <h3 className="text-xl font-bold">No active EMIs</h3>
+            <p className="mt-2 text-muted-foreground">
               {cards.length === 0
                 ? 'Add a card first to start tracking EMIs'
                 : 'Add an EMI to start tracking your installment payments'}
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
+            </p>
+          </div>
+        </div>
       ) : (
         <div className="space-y-4">
           {allEmis.map(({ card, ...emi }) => {
@@ -228,18 +258,18 @@ export function EMIManager({ selectedCardId }: EMIManagerProps) {
             const isCompleted = remaining === 0;
 
             return (
-              <Card key={emi.id} className={isCompleted ? 'opacity-60' : ''}>
-                <CardContent className="pt-6">
+              <Card key={emi.id} className={`border-0 bg-card shadow-lg shadow-black/5 transition-all duration-300 ${isCompleted ? 'opacity-60' : 'hover:-translate-y-1 hover:shadow-xl'}`}>
+                <CardContent className="p-6">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex items-start gap-4">
                       <div
-                        className="flex h-10 w-10 items-center justify-center rounded-lg"
-                        style={{ backgroundColor: card.color }}
+                        className="flex h-12 w-12 items-center justify-center rounded-xl shadow-lg"
+                        style={{ background: `linear-gradient(135deg, ${card.color}, ${card.color}cc)` }}
                       >
-                        <CardIcon className="h-5 w-5 text-white" />
+                        <CardIcon className="h-6 w-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="font-medium">{emi.description}</h3>
+                        <h3 className="text-lg font-semibold">{emi.description}</h3>
                         <p className="text-sm text-muted-foreground">
                           {card.nickname} •••• {card.lastFourDigits}
                         </p>
@@ -247,7 +277,7 @@ export function EMIManager({ selectedCardId }: EMIManagerProps) {
                           <Calendar className="h-4 w-4 text-muted-foreground" />
                           <span>
                             {isCompleted
-                              ? 'Completed'
+                              ? '✅ Completed'
                               : `Next due: ${new Date(emi.nextDueDate).toLocaleDateString()}`}
                           </span>
                         </div>
@@ -256,31 +286,40 @@ export function EMIManager({ selectedCardId }: EMIManagerProps) {
 
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <p className="text-lg font-semibold">{formatCurrency(emi.emiAmount)}</p>
+                        <p className="text-2xl font-bold">{formatCurrency(emi.emiAmount)}</p>
                         <p className="text-sm text-muted-foreground">/month</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span>
+                  <div className="mt-6">
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span className="font-medium">
                         {emi.paidInstallments} of {emi.totalInstallments} paid
                       </span>
-                      <Badge variant={isCompleted ? 'secondary' : 'outline'}>
+                      <Badge 
+                        variant={isCompleted ? 'secondary' : 'outline'}
+                        className={isCompleted ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : ''}
+                      >
                         {isCompleted
-                          ? 'Completed'
+                          ? '✓ Completed'
                           : `${remaining} remaining`}
                       </Badge>
                     </div>
-                    <Progress value={progress} className="mt-2" />
+                    <div className="h-3 rounded-full bg-muted overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-500 ${isCompleted ? 'bg-emerald-500' : 'bg-gradient-to-r from-violet-500 to-purple-600'}`}
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
                   </div>
 
-                  <div className="mt-4 flex justify-end gap-2">
+                  <div className="mt-4 flex justify-end gap-3">
                     {!isCompleted && (
                       <Button
                         variant="outline"
                         size="sm"
+                        className="rounded-xl"
                         onClick={() => handleIncrementPaid(card.id, emi.id)}
                       >
                         Mark Paid
@@ -288,8 +327,8 @@ export function EMIManager({ selectedCardId }: EMIManagerProps) {
                     )}
                     <Button
                       variant="ghost"
-                      size="sm"
-                      className="text-destructive hover:text-destructive"
+                      size="icon"
+                      className="text-muted-foreground hover:text-destructive rounded-xl"
                       onClick={() => setEmiToDelete({ cardId: card.id, emiId: emi.id })}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -304,16 +343,16 @@ export function EMIManager({ selectedCardId }: EMIManagerProps) {
 
       {/* Add EMI Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="rounded-2xl sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Add New EMI</DialogTitle>
+            <DialogTitle className="text-xl">Add New EMI</DialogTitle>
             <DialogDescription>
               Track a new EMI on one of your credit cards.
             </DialogDescription>
           </DialogHeader>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               <FormField
                 control={form.control}
                 name="cardId"
@@ -322,14 +361,20 @@ export function EMIManager({ selectedCardId }: EMIManagerProps) {
                     <FormLabel>Card</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="rounded-xl">
                           <SelectValue placeholder="Select card" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {cards.map((card) => (
                           <SelectItem key={card.id} value={card.id}>
-                            {card.nickname} •••• {card.lastFourDigits}
+                            <span className="flex items-center gap-2">
+                              <span 
+                                className="h-3 w-3 rounded-full" 
+                                style={{ backgroundColor: card.color }}
+                              />
+                              {card.nickname} •••• {card.lastFourDigits}
+                            </span>
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -346,7 +391,7 @@ export function EMIManager({ selectedCardId }: EMIManagerProps) {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., iPhone 15 Pro" {...field} />
+                      <Input placeholder="e.g., iPhone 15 Pro" className="rounded-xl" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -361,7 +406,7 @@ export function EMIManager({ selectedCardId }: EMIManagerProps) {
                     <FormItem>
                       <FormLabel>Total Amount ({settings.currencySymbol})</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} />
+                        <Input type="number" className="rounded-xl" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -375,7 +420,7 @@ export function EMIManager({ selectedCardId }: EMIManagerProps) {
                     <FormItem>
                       <FormLabel>Monthly EMI ({settings.currencySymbol})</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} />
+                        <Input type="number" className="rounded-xl" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -391,7 +436,7 @@ export function EMIManager({ selectedCardId }: EMIManagerProps) {
                     <FormItem>
                       <FormLabel>Total Installments</FormLabel>
                       <FormControl>
-                        <Input type="number" min={1} {...field} />
+                        <Input type="number" min={1} className="rounded-xl" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -405,7 +450,7 @@ export function EMIManager({ selectedCardId }: EMIManagerProps) {
                     <FormItem>
                       <FormLabel>Already Paid</FormLabel>
                       <FormControl>
-                        <Input type="number" min={0} {...field} />
+                        <Input type="number" min={0} className="rounded-xl" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -420,18 +465,18 @@ export function EMIManager({ selectedCardId }: EMIManagerProps) {
                   <FormItem>
                     <FormLabel>EMI Start Date</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input type="date" className="rounded-xl" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <div className="flex justify-end gap-2 pt-4">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <div className="flex justify-end gap-3 pt-4">
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="rounded-xl">
                   Cancel
                 </Button>
-                <Button type="submit">Add EMI</Button>
+                <Button type="submit" className="rounded-xl shadow-lg shadow-primary/20">Add EMI</Button>
               </div>
             </form>
           </Form>
@@ -440,18 +485,18 @@ export function EMIManager({ selectedCardId }: EMIManagerProps) {
 
       {/* Delete Confirmation */}
       <AlertDialog open={!!emiToDelete} onOpenChange={() => setEmiToDelete(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete EMI</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-xl">Delete EMI</AlertDialogTitle>
+            <AlertDialogDescription className="text-base">
               Are you sure you want to delete this EMI? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="gap-3">
+            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteEmi}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
             >
               Delete
             </AlertDialogAction>
